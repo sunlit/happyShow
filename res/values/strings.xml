@@ -3,5 +3,6 @@
 
     <string name="hello">Hello World, HappyShowActivity!</string>
     <string name="app_name">HappyShow</string>
-
+    <string name="desc">The Picture is showed at here</string>
+    
 </resources>
