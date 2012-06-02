@@ -3,6 +3,7 @@ package com.sunlitjiang.happyShow;
 import android.app.Activity;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.widget.ImageView;
 
 public class HappyShowActivity extends Activity {
@@ -27,6 +28,15 @@ public class HappyShowActivity extends Activity {
 	public void onWindowFocusChanged (boolean hasFocus){
 		super.onWindowFocusChanged (hasFocus);
 		frameAnimation.start();
+	}
+	
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+			this.finish();
+			return true;
+		}
+		return super.onTouchEvent(event);
 	}
 }
 
