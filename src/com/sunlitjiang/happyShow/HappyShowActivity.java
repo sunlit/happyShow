@@ -1,6 +1,7 @@
 package com.sunlitjiang.happyShow;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -22,6 +23,10 @@ public class HappyShowActivity extends Activity {
         showedImage.setBackgroundResource(R.drawable.slides);
         // Get the background, which has been compiled to an AnimationDrawable object.
         frameAnimation = (AnimationDrawable) showedImage.getBackground();
+        
+		Intent intentForStartService = new Intent(this, HappyShowService.class);
+		startService(intentForStartService);
+
     }
 	
 	@Override
