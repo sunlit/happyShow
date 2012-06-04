@@ -17,12 +17,12 @@ public class HappyShowService extends Service {
 
 	@Override
 	public IBinder onBind(Intent arg0) {
-		// TODO Auto-generated method stub
+		// We don't provide binding, so return null
 		return null;
 	}
 	
-	@Override  
-	public void onStart(Intent intent, int startId) {
+	@Override
+    public void onCreate() {
 		mKeyguardManager = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);  
 		mKeyguardLock = mKeyguardManager.newKeyguardLock("");  
 		mKeyguardLock.disableKeyguard();
@@ -40,5 +40,12 @@ public class HappyShowService extends Service {
 			} //onReceive
 		};
 		registerReceiver(screenoffReciever, new IntentFilter(Intent.ACTION_SCREEN_OFF));
+    }
+	
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		// Want this service to continue running until it is explicitly stopped, 
+		// so return sticky.
+	    return START_STICKY;
 	}
 }
