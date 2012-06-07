@@ -1,7 +1,5 @@
 package com.sunlitjiang.happyShow;
 
-import android.app.KeyguardManager;
-import android.app.KeyguardManager.KeyguardLock;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -11,8 +9,6 @@ import android.os.IBinder;
 import android.util.Log;
 
 public class HappyShowService extends Service {
-    KeyguardManager mKeyguardManager = null;  
-    private KeyguardLock mKeyguardLock = null;  
 	private BroadcastReceiver screenoffReciever = null;
 
 	@Override
@@ -23,9 +19,6 @@ public class HappyShowService extends Service {
 	
 	@Override
     public void onCreate() {
-		mKeyguardManager = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);  
-		mKeyguardLock = mKeyguardManager.newKeyguardLock("");  
-		mKeyguardLock.disableKeyguard();
 
 		screenoffReciever = new BroadcastReceiver(){  
 			public void onReceive(Context context, Intent intent) {
@@ -33,7 +26,8 @@ public class HappyShowService extends Service {
 						Intent intentToActivity = new Intent();  
 						intentToActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);  
 						intentToActivity.setClass(context, HappyShowActivity.class);  
-						context.startActivity(intentToActivity);  
+						context.startActivity(intentToActivity);
+						Log.d("screenoffReciever", "startActivity");
 					} catch (Exception e) {  
 						Log.i("Exception in HappyShowService:", e.toString());  
 					}  

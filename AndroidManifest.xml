@@ -9,17 +9,18 @@
 	    android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 	<uses-permission
 	    android:name="android.permission.DISABLE_KEYGUARD" />
-	
+	<uses-permission 
+		android:name="android.permission.WAKE_LOCK" />
     <application
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
         <activity
             android:name=".HappyShowActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -27,7 +28,7 @@
             android:name="HappyShowService"
             android:icon="@drawable/ic_launcher"
             android:label="@string/service_name"
-            android:process=":happyshow_process" >
+            android:process=":happyshow_srvproc" >
         </service>
         <receiver android:name="BootCompleteReceiver" >
             <intent-filter>
