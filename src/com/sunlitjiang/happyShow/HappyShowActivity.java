@@ -1,10 +1,15 @@
 package com.sunlitjiang.happyShow;
 
+import java.io.File;
+import java.io.FilenameFilter;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.util.Log;
@@ -13,14 +18,21 @@ import android.widget.ImageView;
 
 public class HappyShowActivity extends Activity {
     /** Called when the activity is first created. */
+	private static final int DURATIONTIME = 3500;  //millisecond
+	
 	private ImageView showedImage;
 	private AnimationDrawable frameAnimation;
 	private PowerManager powerManager;
 	private WakeLock wakeLock;
+
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+
+        powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wakeLock = powerManager.newWakeLock((PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP), "TAG");
+        wakeLock.acquire();
 
         // Load the ImageView that will host the animation and
         // set its background to our AnimationDrawable XML resource.
@@ -28,15 +40,11 @@ public class HappyShowActivity extends Activity {
         showedImage.setBackgroundResource(R.drawable.slides);
         // Get the background, which has been compiled to an AnimationDrawable object.
         frameAnimation = (AnimationDrawable) showedImage.getBackground();
+        addPicturesOnExternalStorageIfExist();
         
 		Intent intentForStartService = new Intent(this, HappyShowService.class);
 		startService(intentForStartService);
 		
-        powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        wakeLock = powerManager.newWakeLock((PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP), "TAG");
-        wakeLock.acquire();
-        //powerManager.userActivity(0, false);
-
         Log.d("Activity", "onCreate");
     }
 	
@@ -49,7 +57,6 @@ public class HappyShowActivity extends Activity {
 	
 	@Override
 	protected void onNewIntent (Intent intent) {
-		wakeLock.acquire();
 		Log.d("Activity", "onNewIntent");
 	}
 	
@@ -74,6 +81,49 @@ public class HappyShowActivity extends Activity {
 	    super.onStop();  // Always call the superclass method first
 	    wakeLock.release();
 	    Log.d("Activity", "onStop");
+	}
+	
+	private void addPicturesOnExternalStorageIfExist() {
+	    // check if external storage 
+	    String state = Environment.getExternalStorageState();
+	    if ( !(Environment.MEDIA_MOUNTED.equals(state) || 
+	          Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) ) {
+	        return;
+	    } 
+
+	    // check if a directory named as this application
+	    File rootPath = Environment.getExternalStorageDirectory();
+	    // 'happyShow' is the name of directory
+	    File pictureDirectory = new File(rootPath, getString(R.string.app_name)); 
+	    if ( !pictureDirectory.exists() ) {
+	        Log.d("Activity", "NoFoundExternalDirectory");
+	        return;
+	    }
+
+	    // check if there is any picture
+	    //create a FilenameFilter and override its accept-method
+	    FilenameFilter filefilter = new FilenameFilter() {
+	        public boolean accept(File dir, String name) {
+	        return (name.endsWith(".jpeg") || 
+	                name.endsWith(".jpg") || 
+	                name.endsWith(".JPG") || 
+	                name.endsWith(".png") );
+	        }
+	    };
+
+	    String[] sNamelist = pictureDirectory.list(filefilter);
+	    if (sNamelist.length == 0) {
+	        Log.d("Activity", "No pictures in directory.");
+	        return;
+	    }
+
+	    for (String filename : sNamelist) {
+	        Log.d("Activity", pictureDirectory.getPath() + '/' + filename);
+	        frameAnimation.addFrame(
+	                Drawable.createFromPath(pictureDirectory.getPath() + '/' + filename),
+	                DURATIONTIME);
+	    }
+	    return;
 	}
 
 }
