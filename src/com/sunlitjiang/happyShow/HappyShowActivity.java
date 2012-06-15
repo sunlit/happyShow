@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -24,7 +26,8 @@ public class HappyShowActivity extends Activity {
 	private AnimationDrawable frameAnimation;
 	private PowerManager powerManager;
 	private WakeLock wakeLock;
-
+	private BroadcastReceiver photoStateReciever;
+	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,8 +48,21 @@ public class HappyShowActivity extends Activity {
 		Intent intentForStartService = new Intent(this, HappyShowService.class);
 		startService(intentForStartService);
 		
+		photoStateReciever = new BroadcastReceiver(){  
+			public void onReceive(Context context, Intent intent) {
+				HappyShowActivity.this.finish();
+			} //onReceive
+		};
+		registerReceiver(photoStateReciever, new IntentFilter(Intent.ACTION_POWER_DISCONNECTED));
+		
         Log.d("Activity", "onCreate");
     }
+	
+	@Override
+	public void onStart() {
+		super.onStart();
+		Log.d("Activity", "onStart");
+	}
 	
 	@Override
 	public void onWindowFocusChanged (boolean hasFocus){
@@ -67,6 +83,12 @@ public class HappyShowActivity extends Activity {
 	}
 	
 	@Override
+	public void onResume() {
+		super.onResume();
+		Log.d("Activity", "onResume");
+	}
+	
+	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
 	        Log.d("Activity", "onTouchDown");
@@ -78,9 +100,23 @@ public class HappyShowActivity extends Activity {
 	
 	@Override
 	protected void onStop() {
-	    super.onStop();  // Always call the superclass method first
 	    wakeLock.release();
+	    unregisterReceiver(photoStateReciever);
+	    super.onStop();  // Always call the superclass method first
 	    Log.d("Activity", "onStop");
+	}
+	
+	@Override
+	protected void onRestart() {
+		super.onRestart();
+		Log.d("Activity", "onRestart");
+	}
+	
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		Log.d("Activity", "onDestroy");
 	}
 	
 	private void addPicturesOnExternalStorageIfExist() {

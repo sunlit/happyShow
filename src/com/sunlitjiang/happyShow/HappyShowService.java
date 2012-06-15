@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.IBinder;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 public class HappyShowService extends Service {
@@ -28,7 +29,11 @@ public class HappyShowService extends Service {
 				int chargePlug = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
 				boolean bPlugged =  (chargePlug == BatteryManager.BATTERY_PLUGGED_USB) ||
 									(chargePlug == BatteryManager.BATTERY_PLUGGED_AC);
-				if (bPlugged) {
+				TelephonyManager phone = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
+				
+				boolean bPhoneIsIdle = TelephonyManager.CALL_STATE_IDLE == phone.getCallState();
+
+				if (bPlugged && bPhoneIsIdle) {
 					try {  
 						Intent intentToActivity = new Intent();  
 						intentToActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);  
@@ -49,5 +54,10 @@ public class HappyShowService extends Service {
 		// Want this service to continue running until it is explicitly stopped, 
 		// so return sticky.
 	    return START_STICKY;
+	}
+	
+	@Override
+	public void onDestroy () {
+		unregisterReceiver(screenoffReciever);
 	}
 }
