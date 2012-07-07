@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -69,6 +70,11 @@ public class HappyShowActivity extends Activity {
 		super.onWindowFocusChanged (hasFocus);
 		frameAnimation.start();
         Log.d("Activity", "onFocusChanged");
+	}
+	
+	@Override
+	public void onConfigurationChanged (Configuration newConfig){
+		Log.d("Activity", "onConfigurationChanged");
 	}
 	
 	@Override
