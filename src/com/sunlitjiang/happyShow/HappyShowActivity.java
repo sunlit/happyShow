@@ -27,7 +27,8 @@ public class HappyShowActivity extends Activity {
 	private AnimationDrawable frameAnimation;
 	private PowerManager powerManager;
 	private WakeLock wakeLock;
-	private BroadcastReceiver photoStateReciever;
+	private BroadcastReceiver phoneStateReciever;
+
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -49,12 +50,14 @@ public class HappyShowActivity extends Activity {
 		Intent intentForStartService = new Intent(this, HappyShowService.class);
 		startService(intentForStartService);
 		
-		photoStateReciever = new BroadcastReceiver(){  
+		phoneStateReciever = new BroadcastReceiver(){  
 			public void onReceive(Context context, Intent intent) {
 				HappyShowActivity.this.finish();
 			} //onReceive
 		};
-		registerReceiver(photoStateReciever, new IntentFilter(Intent.ACTION_POWER_DISCONNECTED));
+		IntentFilter phoneStateIntentFilter = new IntentFilter(Intent.ACTION_POWER_DISCONNECTED);
+		phoneStateIntentFilter.addAction(android.telephony.TelephonyManager.ACTION_PHONE_STATE_CHANGED);
+		registerReceiver(phoneStateReciever, phoneStateIntentFilter);
 		
         Log.d("Activity", "onCreate");
     }
@@ -107,7 +110,7 @@ public class HappyShowActivity extends Activity {
 	@Override
 	protected void onStop() {
 	    wakeLock.release();
-	    unregisterReceiver(photoStateReciever);
+	    unregisterReceiver(phoneStateReciever);
 	    super.onStop();  // Always call the superclass method first
 	    Log.d("Activity", "onStop");
 	}
