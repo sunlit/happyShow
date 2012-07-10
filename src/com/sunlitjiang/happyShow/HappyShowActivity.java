@@ -71,8 +71,13 @@ public class HappyShowActivity extends Activity {
 	@Override
 	public void onWindowFocusChanged (boolean hasFocus){
 		super.onWindowFocusChanged (hasFocus);
-		frameAnimation.start();
-        Log.d("Activity", "onFocusChanged");
+		if(hasFocus) {
+			frameAnimation.start();
+			Log.d("Activity", "onFocusChanged hasFocus");
+		}
+		else {
+			Log.d("Activity", "onFocusChanged lostFocus");
+		}
 	}
 	
 	@Override
@@ -112,6 +117,7 @@ public class HappyShowActivity extends Activity {
 	    wakeLock.release();
 	    unregisterReceiver(phoneStateReciever);
 	    super.onStop();  // Always call the superclass method first
+	    this.finish();
 	    Log.d("Activity", "onStop");
 	}
 	
