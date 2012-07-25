@@ -13,10 +13,10 @@ import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 
 public class HappyShowActivity extends Activity {
@@ -25,8 +25,7 @@ public class HappyShowActivity extends Activity {
 	
 	private ImageView showedImage;
 	private AnimationDrawable frameAnimation;
-	private PowerManager powerManager;
-	private WakeLock wakeLock;
+	private Window win;
 	private BroadcastReceiver phoneStateReciever;
 
 	
@@ -35,9 +34,11 @@ public class HappyShowActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        wakeLock = powerManager.newWakeLock((PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP), "TAG");
-        wakeLock.acquire();
+        win = getWindow();
+        win.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED 
+        			| WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD); 
+        win.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON 
+        			| WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
         // Load the ImageView that will host the animation and
         // set its background to our AnimationDrawable XML resource.
@@ -114,7 +115,6 @@ public class HappyShowActivity extends Activity {
 	
 	@Override
 	protected void onStop() {
-	    wakeLock.release();
 	    unregisterReceiver(phoneStateReciever);
 	    super.onStop();  // Always call the superclass method first
 	    this.finish();
