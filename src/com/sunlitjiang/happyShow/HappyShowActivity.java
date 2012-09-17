@@ -1,8 +1,5 @@
 package com.sunlitjiang.happyShow;
 
-import java.io.File;
-import java.io.FilenameFilter;
-
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -12,7 +9,6 @@ import android.content.res.Configuration;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.Window;
@@ -51,14 +47,7 @@ public class HappyShowActivity extends Activity {
 		Intent intentForStartService = new Intent(this, HappyShowService.class);
 		startService(intentForStartService);
 		
-		phoneStateReciever = new BroadcastReceiver(){  
-			public void onReceive(Context context, Intent intent) {
-				HappyShowActivity.this.finish();
-			} //onReceive
-		};
-		IntentFilter phoneStateIntentFilter = new IntentFilter(Intent.ACTION_POWER_DISCONNECTED);
-		phoneStateIntentFilter.addAction(android.telephony.TelephonyManager.ACTION_PHONE_STATE_CHANGED);
-		registerReceiver(phoneStateReciever, phoneStateIntentFilter);
+		registerPhoneReciever();
 		
         Log.d("Activity", "onCreate");
     }
@@ -115,7 +104,9 @@ public class HappyShowActivity extends Activity {
 	
 	@Override
 	protected void onStop() {
-	    unregisterReceiver(phoneStateReciever);
+		if (phoneStateReciever != null) {
+			unregisterReceiver(phoneStateReciever);
+		}
 	    super.onStop();  // Always call the superclass method first
 	    this.finish();
 	    Log.d("Activity", "onStop");
@@ -135,47 +126,27 @@ public class HappyShowActivity extends Activity {
 	}
 	
 	private void addPicturesOnExternalStorageIfExist() {
-	    // check if external storage 
-	    String state = Environment.getExternalStorageState();
-	    if ( !(Environment.MEDIA_MOUNTED.equals(state) || 
-	          Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) ) {
-	        return;
-	    } 
-
-	    // check if a directory named as this application
-	    File rootPath = Environment.getExternalStorageDirectory();
-	    // 'happyShow' is the name of directory
-	    File pictureDirectory = new File(rootPath, getString(R.string.app_name)); 
-	    if ( !pictureDirectory.exists() ) {
-	        Log.d("Activity", "NoFoundExternalDirectory");
-	        return;
-	    }
-
-	    // check if there is any picture
-	    //create a FilenameFilter and override its accept-method
-	    FilenameFilter filefilter = new FilenameFilter() {
-	        public boolean accept(File dir, String name) {
-	        return (name.endsWith(".jpeg") || 
-	                name.endsWith(".jpg") || 
-	                name.endsWith(".JPG") || 
-	                name.endsWith(".png") );
-	        }
-	    };
-
-	    String[] sNamelist = pictureDirectory.list(filefilter);
-	    if (sNamelist.length == 0) {
-	        Log.d("Activity", "No pictures in directory.");
-	        return;
-	    }
-
-	    for (String filename : sNamelist) {
-	        Log.d("Activity", pictureDirectory.getPath() + '/' + filename);
-	        frameAnimation.addFrame(
-	                Drawable.createFromPath(pictureDirectory.getPath() + '/' + filename),
-	                DURATIONTIME);
+		ExternalStorageMedia st = new ExternalStorageMedia( getString(R.string.app_name) );
+	    String[] sNamelist = st.getPictureArray();
+	    if (sNamelist != null) {
+		    for (String sPic : sNamelist) {
+		        frameAnimation.addFrame(Drawable.createFromPath(sPic), DURATIONTIME);
+		    }
 	    }
 	    return;
 	}
+
+	private void registerPhoneReciever() {
+		phoneStateReciever = new BroadcastReceiver() {  
+			public void onReceive(Context context, Intent intent) {
+				HappyShowActivity.this.finish();
+			} //onReceive
+		};
+		IntentFilter phoneStateIntentFilter = new IntentFilter(Intent.ACTION_POWER_DISCONNECTED);
+		phoneStateIntentFilter.addAction(android.telephony.TelephonyManager.ACTION_PHONE_STATE_CHANGED);
+		registerReceiver(phoneStateReciever, phoneStateIntentFilter);
+	}
+	
 
 }
 
