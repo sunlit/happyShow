@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Configuration;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -42,7 +41,14 @@ public class HappyShowActivity extends Activity {
         showedImage.setBackgroundResource(R.drawable.slides);
         // Get the background, which has been compiled to an AnimationDrawable object.
         frameAnimation = (AnimationDrawable) showedImage.getBackground();
-        addPicturesOnExternalStorageIfExist();
+
+        ExternalStorageMedia st = new ExternalStorageMedia( getString(R.string.app_name) );
+	    String[] sNamelist = st.getPictureArray();
+	    if (sNamelist != null) {
+		    for (String sPic : sNamelist) {
+		        frameAnimation.addFrame(Drawable.createFromPath(sPic), DURATIONTIME);
+		    }
+	    }
         
 		Intent intentForStartService = new Intent(this, HappyShowService.class);
 		startService(intentForStartService);
@@ -51,12 +57,6 @@ public class HappyShowActivity extends Activity {
 		
         Log.d("Activity", "onCreate");
     }
-	
-	@Override
-	public void onStart() {
-		super.onStart();
-		Log.d("Activity", "onStart");
-	}
 	
 	@Override
 	public void onWindowFocusChanged (boolean hasFocus){
@@ -68,28 +68,6 @@ public class HappyShowActivity extends Activity {
 		else {
 			Log.d("Activity", "onFocusChanged lostFocus");
 		}
-	}
-	
-	@Override
-	public void onConfigurationChanged (Configuration newConfig){
-		Log.d("Activity", "onConfigurationChanged");
-	}
-	
-	@Override
-	protected void onNewIntent (Intent intent) {
-		Log.d("Activity", "onNewIntent");
-	}
-	
-	@Override
-	public void onPause() {
-		super.onPause();  // Always call the superclass method first
-        Log.d("Activity", "onPause");
-	}
-	
-	@Override
-	public void onResume() {
-		super.onResume();
-		Log.d("Activity", "onResume");
 	}
 	
 	@Override
@@ -112,30 +90,6 @@ public class HappyShowActivity extends Activity {
 	    Log.d("Activity", "onStop");
 	}
 	
-	@Override
-	protected void onRestart() {
-		super.onRestart();
-		Log.d("Activity", "onRestart");
-	}
-	
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		Log.d("Activity", "onDestroy");
-	}
-	
-	private void addPicturesOnExternalStorageIfExist() {
-		ExternalStorageMedia st = new ExternalStorageMedia( getString(R.string.app_name) );
-	    String[] sNamelist = st.getPictureArray();
-	    if (sNamelist != null) {
-		    for (String sPic : sNamelist) {
-		        frameAnimation.addFrame(Drawable.createFromPath(sPic), DURATIONTIME);
-		    }
-	    }
-	    return;
-	}
-
 	private void registerPhoneReciever() {
 		phoneStateReciever = new BroadcastReceiver() {  
 			public void onReceive(Context context, Intent intent) {
@@ -147,6 +101,5 @@ public class HappyShowActivity extends Activity {
 		registerReceiver(phoneStateReciever, phoneStateIntentFilter);
 	}
 	
-
 }
 
